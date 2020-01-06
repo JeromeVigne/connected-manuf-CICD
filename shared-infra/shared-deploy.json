@@ -1,0 +1,148 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appServicePlan":{
+            "type": "string"
+        },
+        "sqlServer":{
+            "type": "string"
+        },
+        "sqlAdmin":{
+            "type": "string"
+        },
+        "sqlAdminPw":{
+            "type": "string"
+        },
+        "DataLakeName":{
+            "type": "string"
+        },
+        "tenantId":{
+            "type": "string"
+        },
+        "analyticsLogs":{
+            "type": "string"
+        },
+        "vnet":{
+            "type": "string"
+        },
+        "vnetAddressPrefix":{
+            "type": "string"
+        },
+        "subnet1Prefix":{
+            "type": "string"
+        },
+        "subnet2Prefix":{
+            "type": "string"
+        }
+    },
+    "variables": {
+
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('appServicePlan')]",
+            "location": "[resourcegroup().location]",
+            "tags": {
+            },
+            "sku": {
+                "name": "S2",
+                "tier": "Standard",
+                "size": "S2",
+                "family": "S",
+                "capacity": 1
+            },
+            "kind": "app",
+            "properties": {
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2015-05-01-preview",
+            "name": "[parameters('sqlServer')]",
+            "location": "[resourcegroup().location]",
+            "tags": {
+            },
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "[parameters('sqlAdmin')]",
+                "administratorLoginPassword": "[parameters('sqlAdminPw')]",
+                "version": "12.0"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('DataLakeName')]",
+            "location": "[resourcegroup().location]",
+            "apiVersion": "2019-04-01",
+            "sku": {
+                "name": "Standard_GRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "name": "[parameters('analyticsLogs')]",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourcegroup().location]",
+            "properties": {
+                "features": {
+                    "searchVersion": 1
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-10-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('vnet')]",
+            "location": "[resourcegroup().location]",
+            "properties": {
+              "addressSpace": {
+                "addressPrefixes": [
+                  "[parameters('vnetAddressPrefix')]"
+                ]
+              }
+            },
+            "resources": [
+              {
+                "apiVersion": "2018-10-01",
+                "type": "subnets",
+                "location": "[resourcegroup().location]",
+                "name": "subnet1",
+                "dependsOn": [
+                  "[parameters('vnet')]"
+                ],
+                "properties": {
+                  "addressPrefix": "[parameters('subnet1Prefix')]"
+                }
+              },
+              {
+                "apiVersion": "2018-10-01",
+                "type": "subnets",
+                "location": "[resourcegroup().location]",
+                "name": "subnet2",
+                "dependsOn": [
+                  "[parameters('vnet')]",
+                  "subnet1"
+                ],
+                "properties": {
+                  "addressPrefix": "[parameters('subnet2Prefix')]"
+                }
+              }
+            ]
+        }
+
+    ]
+}

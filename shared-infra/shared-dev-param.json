@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appServicePlan": {
+            "value":"asp-dev-eus2-conmanuf"
+        },
+        "sqlServer": {
+            "value":"sql-dev-eus2-conmanuf"
+        },
+        "sqlAdmin":{
+            "value": "jrmvgn"
+        },
+        "sqlAdminPw":{
+            "value": "Sicherheit123"
+        },
+        "DataLake": {
+            "value":"dlkdeveus2conmanuf"
+        },
+        "tenantId": {
+            "value":"a6c75c19-dd0d-4cc5-beb1-92b6384977fb"
+        },
+        "analyticsLogs": {
+            "value":"alg-dev-eus2-conmanuf"
+        },
+        "vnet":{
+            "value": "vnt-dev-eus2-conmanuf"
+        },
+        "vnetAddressPrefix":{
+            "value": "10.0.0.0/20"
+        },
+        "subnet1Prefix":{
+            "value": "10.0.0.0/24"
+        },
+        "subnet2Prefix":{
+            "value": "10.0.1.0/24"
+        }
+  }
+}
