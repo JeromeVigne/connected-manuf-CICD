@@ -17,9 +17,6 @@
         "DataLakeName":{
             "type": "string"
         },
-        "tenantId":{
-            "type": "string"
-        },
         "analyticsLogs":{
             "type": "string"
         },

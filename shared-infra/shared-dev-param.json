@@ -3,28 +3,25 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "appServicePlan": {
-            "value":"asp-dev-eus2-conmanuf"
+            "value":"conman-dev-asp"
         },
         "sqlServer": {
-            "value":"sql-dev-eus2-conmanuf"
+            "value":"conman-dev-sql"
         },
         "sqlAdmin":{
-            "value": "jrmvgn"
+            "value": ""
         },
         "sqlAdminPw":{
-            "value": "Sicherheit123"
+            "value": ""
         },
-        "DataLake": {
-            "value":"dlkdeveus2conmanuf"
-        },
-        "tenantId": {
-            "value":"a6c75c19-dd0d-4cc5-beb1-92b6384977fb"
+        "DataLakeName": {
+            "value":"conmandevdlk"
         },
         "analyticsLogs": {
-            "value":"alg-dev-eus2-conmanuf"
+            "value":"conman-dev-anal"
         },
         "vnet":{
-            "value": "vnt-dev-eus2-conmanuf"
+            "value": "conman-dev-vnt"
         },
         "vnetAddressPrefix":{
             "value": "10.0.0.0/20"
