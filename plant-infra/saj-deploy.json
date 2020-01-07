@@ -142,7 +142,7 @@
                     "name": "Transformation",
                     "properties": {
                         "streamingUnits": 1,
-                        "query": "/* FIXME \n"
+                        "query": "/* FIXME /*\n"
                     }
                 },
                 "outputs":[
@@ -242,7 +242,7 @@
                                 "binding": {
                                     "type": "Microsoft.StreamAnalytics/JavascriptUdf",
                                     "properties": {
-                                        "script": "/*\n  FIXME \n}"
+                                        "script": "/*\n  FIXME /*\n"
                                     }
                                 }
                             }
