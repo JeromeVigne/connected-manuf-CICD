@@ -81,7 +81,7 @@
                         "eventHubs": [],
                         "storageContainers": [
                             {
-                                "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('Raw_Data_Storage'),';AccountKey=',listKeys(resourceId('3a5c1be2-0158-47a6-9aeb-e5edd37e7aee', resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Raw_Data_Storage')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]",
+                                "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('Raw_Data_Storage'),';AccountKey=',listKeys(resourceId('6f65feb8-0133-448e-ae42-17d10b9df4c6', resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Raw_Data_Storage')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]",
                                 "containerName": "[parameters('plantCode')]",
                                 "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
                                 "batchFrequencyInSeconds": 100,
