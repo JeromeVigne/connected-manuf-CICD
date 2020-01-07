@@ -28,10 +28,10 @@
         }
     },
     "variables": {
-        "IoT_Hub_Name": "[concat('iot-dev-',parameters('locationShort'),'-', parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect')]",
-        "App_Insights_name": "[concat('ais-dev-',parameters('locationShort'),parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcengine')]",
-        "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'), '-vconnect-calcengine'))]",
-        "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'vconnect'))]",
+        "IoT_Hub_Name": "[concat('iot-dev-',parameters('locationShort'),'-', parameters('businessUnitCode'), '-', parameters('plantCode'))]",
+        "App_Insights_name": "[concat('ais-dev-',parameters('locationShort'),parameters('businessUnitCode'), '-', parameters('plantCode'))]",
+        "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode')))]",
+        "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode')))]",
         "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]"
     },
     "resources": [
