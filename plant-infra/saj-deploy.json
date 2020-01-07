@@ -30,7 +30,7 @@
         "IoT_Hub_Name": "[concat('iot-dev-',parameters('locationShort'), '-', parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect')]",    
         "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcenginedb')]",  
         "streamingjobs_name": "[concat('asa-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'))]",
-        "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]",
+        "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]"
     },
     "resources": [ 
         {
@@ -38,7 +38,6 @@
             "apiVersion": "2019-06-01",
             "name": "[variables('streamingjobs_name')]",
             "location": "East US",
-            "tags": "[variables('resourceTags')]",
             "properties": {
                 "sku": {
                     "name": "Standard"

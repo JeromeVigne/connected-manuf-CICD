@@ -32,7 +32,7 @@
         "App_Insights_name": "[concat('ais-dev-',parameters('locationShort'),parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcengine')]",
         "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'), '-vconnect-calcengine'))]",
         "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'vconnect'))]",
-        "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]",
+        "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]"
     },
     "resources": [
         {
@@ -40,7 +40,6 @@
             "name": "[variables('Raw_Data_Storage')]",
             "apiVersion": "2019-04-01",
             "location": "[resourceGroup().location]",
-            "tags": "[variables('resourceTags')]",
             "kind": "StorageV2",
             "dependsOn": [
             ],
@@ -54,7 +53,6 @@
             "apiVersion": "2018-04-01",
             "name": "[variables('IoT_Hub_Name')]",
             "location": "[resourceGroup().location]",
-            "tags": "[variables('resourceTags')]",
             "sku": {
                 "name": "S1",
                 "tier": "Standard",
@@ -116,7 +114,6 @@
             "name": "[variables('Function_App_StorageAccount')]",
             "apiVersion": "2019-04-01",
             "location": "[resourceGroup().location]",
-            "tags": "[variables('resourceTags')]",
             "kind": "StorageV2",
             "sku": {
                 "name": "Standard_LRS",
@@ -141,7 +138,6 @@
             "type": "Microsoft.Web/sites",
             "kind": "functionapp",
             "location": "[resourceGroup().location]",
-            "tags": "[variables('resourceTags')]",
             "dependsOn": [
                 "[variables('App_Insights_name')]",
                 "[variables('Function_App_StorageAccount')]"
