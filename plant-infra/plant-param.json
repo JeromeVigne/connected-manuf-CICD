@@ -16,9 +16,6 @@
         },
         "SQLServerName": {
             "value":"sql-dev-eus2-vconnect01"
-        },
-        "region":{
-            "value": "North America"
         }
-  }
+      }
 }

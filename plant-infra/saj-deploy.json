@@ -17,9 +17,6 @@
         "SQLServerName": {
             "type": "string"
         },
-        "region": {
-            "type": "string"
-        },
         "SQLServerUserName": {
             "type": "string"
         },
@@ -34,16 +31,6 @@
         "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcenginedb')]",  
         "streamingjobs_name": "[concat('asa-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'))]",
         "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]",
-        "resourceTags": {
-            "Application": "VConnect",
-            "Built By": "i40 - Connected Factory",
-            "Business Unit": "[parameters('businessUnitCode')]",
-            "Changenumber":"NA",
-            "Owner":"i40 - Connected Factory",
-            "Region":"[parameters('region')]",
-            "Site Code": "[parameters('plantCode')]",
-            "AzRegion": "[resourceGroup().location]"
-        } 
     },
     "resources": [ 
         {

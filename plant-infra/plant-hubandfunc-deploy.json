@@ -17,9 +17,6 @@
         "SQLServerName":{
             "type": "string"
         },
-        "region":{
-            "type": "string"
-        },
         "SQLServerUserName": {
             "type": "string"
         },
@@ -36,16 +33,6 @@
         "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'), '-vconnect-calcengine'))]",
         "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'vconnect'))]",
         "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]",
-        "resourceTags": {
-            "Application": "VConnect",
-            "Built By": "i40 - Connected Factory",
-            "Business Unit": "[parameters('businessUnitCode')]",
-            "Changenumber":"NA",
-            "Owner":"i40 - Connected Factory",
-            "Region":"[parameters('region')]",
-            "Site Code": "[parameters('plantCode')]",
-            "AzRegion": "[resourceGroup().location]"
-        } 
     },
     "resources": [
         {
