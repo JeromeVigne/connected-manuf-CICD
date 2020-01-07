@@ -1,0 +1,68 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "businessUnitCode": {
+            "type":"string"
+        },
+        "plantCode": {
+            "type":"string"
+        },
+        "SQLServerName":{
+            "type": "string"
+        },
+        "locationShort": {
+          "type": "string"
+        },
+        "appServicePlanId": {
+            "type": "string"
+        },
+        "region":{
+            "type": "string"
+        }
+    },
+    "variables": {
+        "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-vconnectdb')]",
+        "resourceTags": {
+            "Application": "VConnect",
+            "Built By": "i40 - Connected Factory",
+            "Business Unit": "[parameters('businessUnitCode')]",
+            "Changenumber":"NA",
+            "Owner":"i40 - Connected Factory",
+            "Region":"[parameters('region')]",
+            "Site Code": "[parameters('plantCode')]",
+            "AzRegion": "[resourceGroup().location]"
+        } 
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2017-10-01-preview",
+            "name": "[concat(parameters('SQLServerName'), '/', variables('DB_Name'))]",
+            "location": "[resourcegroup().location]",
+            "tags": "[variables('resourceTags')]",
+            "sku": {
+                "name": "GP_Gen5",
+                "tier": "GeneralPurpose",
+                "family": "Gen5",
+                "capacity": 2
+            },
+            "kind": "v12.0,user,vcore",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 34359738368,
+                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                "zoneRedundant": false,
+                "licenseType": "LicenseIncluded",
+                "readScale": "Disabled",
+                "readReplicaCount": 0
+            }
+        }
+    ],
+    "outputs": {
+        "DB_Name":{
+            "value": "[variables('DB_Name')]",
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,200 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "businessUnitCode": {
+            "type":"string"
+        },
+        "plantCode": {
+            "type":"string"
+        },
+        "appServicePlanId": {
+            "type": "string"
+        },
+        "locationShort": {
+          "type": "string"
+        },
+        "SQLServerName":{
+            "type": "string"
+        },
+        "region":{
+            "type": "string"
+        },
+        "SQLServerUserName": {
+            "type": "string"
+        },
+        "SQLServerPW": {
+            "type": "string"
+        },
+        "SQLDBName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "IoT_Hub_Name": "[concat('iot-dev-',parameters('locationShort'),'-', parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect')]",
+        "App_Insights_name": "[concat('ais-dev-',parameters('locationShort'),parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcengine')]",
+        "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'), '-vconnect-calcengine'))]",
+        "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'vconnect'))]",
+        "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]",
+        "resourceTags": {
+            "Application": "VConnect",
+            "Built By": "i40 - Connected Factory",
+            "Business Unit": "[parameters('businessUnitCode')]",
+            "Changenumber":"NA",
+            "Owner":"i40 - Connected Factory",
+            "Region":"[parameters('region')]",
+            "Site Code": "[parameters('plantCode')]",
+            "AzRegion": "[resourceGroup().location]"
+        } 
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('Raw_Data_Storage')]",
+            "apiVersion": "2019-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": "[variables('resourceTags')]",
+            "kind": "StorageV2",
+            "dependsOn": [
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Devices/IotHubs",
+            "apiVersion": "2018-04-01",
+            "name": "[variables('IoT_Hub_Name')]",
+            "location": "[resourceGroup().location]",
+            "tags": "[variables('resourceTags')]",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "capacity": 1
+            },
+            "dependsOn": [
+                "[variables('Raw_Data_Storage')]"
+            ],
+            "properties": {
+                "ipFilterRules": [],
+                "eventHubEndpoints": {
+                    "events": {
+                        "retentionTimeInDays": 2,
+                        "partitionCount": 4                     
+                    },
+                    "operationsMonitoringEvents": {
+                        "retentionTimeInDays": 2,
+                        "partitionCount": 4
+            
+                      }
+                },
+                "routing":{
+                    "endpoints": {
+                        "serviceBusQueues": [],
+                        "serviceBusTopics": [],
+                        "eventHubs": [],
+                        "storageContainers": [
+                            {
+                                "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('Raw_Data_Storage'),';AccountKey=',listKeys(resourceId('3a5c1be2-0158-47a6-9aeb-e5edd37e7aee', resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Raw_Data_Storage')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]",
+                                "containerName": "[parameters('plantCode')]",
+                                "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
+                                "batchFrequencyInSeconds": 100,
+                                "maxChunkSizeInBytes": 104857600,
+                                "encoding": "avro",
+                                "name": "naStorage",
+                                "subscriptionId": "[subscription().subscriptionId]",
+                                "resourceGroup": "[resourceGroup().name]"
+                            }
+
+                        ]
+                    },
+                    "routes": [],
+                    "fallbackRoute": {
+                        "name": "$fallback",
+                        "source": "DeviceMessages",
+                        "condition": "true",
+                        "endpointNames": [
+                            "events"
+                        ],
+                        "isEnabled": true
+                    }
+
+                },
+                "features": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('Function_App_StorageAccount')]",
+            "apiVersion": "2019-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": "[variables('resourceTags')]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            }
+        },
+        {
+            "apiVersion": "2015-05-01",
+            "name": "[variables('App_Insights_name')]",
+            "type": "Microsoft.Insights/components",
+            "kind": "web",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {
+                "Application_Type": "web",
+                "ApplicationId": "[variables('Function_App_Name')]"
+            }
+        },
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[variables('Function_App_Name')]",
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "location": "[resourceGroup().location]",
+            "tags": "[variables('resourceTags')]",
+            "dependsOn": [
+                "[variables('App_Insights_name')]",
+                "[variables('Function_App_StorageAccount')]"
+            ],
+            "properties": {
+                "name": "[variables('Function_App_Name')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "dotnet"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(variables('App_Insights_name'), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('Function_App_StorageAccount'),';AccountKey=',listKeys(resourceId(subscription().subscriptionId, resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Function_App_StorageAccount')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        },
+                        {
+                            "name":"sqlconnection",
+                            "value":"[concat('Server=tcp:', parameters('SQLServerName'), '.database.windows.net,1433;Initial Catalog=', parameters('SQLDBName'), ';Persist Security Info=False;User ID=', parameters('SQLServerUserName'), ';Password=', parameters('SQLServerPW'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+                        }
+                    ],
+                    "alwaysOn": false
+                },
+                "serverFarmId": "[parameters('appServicePlanId')]",
+                "clientAffinityEnabled": true
+            }
+        }
+    ],
+    "outputs": {
+        "Function_App_Name": {
+            "type": "string",
+            "value": "[variables('Function_App_Name')]"
+        }
+    }
+}

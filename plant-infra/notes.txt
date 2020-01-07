@@ -1,0 +1,26 @@
+Get the Iot Hub key dynamically.
+
+https://fct-dev-eus2-kai-ggg-vconnect-calcengine.azurewebsites.net/api/OEECalculation?code=ftrOjWbu4stzFQRVzM61jZs74NljTRBsbqPZjF51ema/xWeFIzBCDg==
+
+listKeys(resourceId('3a5c1be2-0158-47a6-9aeb-e5edd37e7aee', resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Function_App_StorageAccount')), '2019-06-01').keys[0].value
+
+"iotHubNamespace": "[variables('iotHubName')]",
+"sharedAccessPolicyName": "iothubowner",
+"sharedAccessPolicyKey": "[listKeys(resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), 'iothubowner'), '2016-02-03').primaryKey]",
+"consumerGroupName": "$default"
+
+
+Stream Analytics job has validation errors: Query compilation error: The join predicate is not time bounded. JOIN operation between data streams requires specifying max time distances between matching events. Please add DATEDIFF to the JOIN condition.
+
+Example:
+
+SELECT input1.a, input2.b FROM input1 JOIN input2 ON DATEDIFF(minute, input1, input2) BETWEEN 0 AND 10.
+
+
+Query: /* READ DATA FROM IOT HUB */\n\nWITH deviceRawData AS (\n    SELECT\n        ki.timestamp AS MessageAdded\n       , dp.ArrayValue.*\n    FROM\n        [GTS-CHW-II0T] AS ki\n        CROSS APPLY GetArrayElements([values]) AS dp \n)\n\n/* PARSE KEPWARE JSON ARRAY IN THE PROPER FIELDS */\n, deviceData AS (\n    SELECT \n          udf.asaIoTdataParser(id) AS iot\n        , v AS tagValue\n        , t AS tagValueAdded\n        , MessageAdded\n    FROM \n        deviceRawData\n)\n\n/* JOIN REFERENCE AND STREAM DATA */\n, joinedData AS (\n    SELECT \n        D.iot.BusinessUnit\n        , D.iot.siteCode\n        , D.iot.asset\n        , D.iot.assetFamily\n        , D.iot.assetNumber\n        , D.iot.tagName\n        , D.tagValue\n        , D.tagValueAdded\n        , D.MessageAdded\n        , AFR.Functionapp\n\n    FROM \n        deviceData D\n        JOIN AssetFunctionReference AFR\n            ON D.iot.asset = AFR.AssetName\n)\n\n/* SAVE DATA TO THE function1 FUNCTION */\nSELECT \n      JD.BusinessUnit\n    , JD.SiteCode\n    , JD.AssetFamily\n    , JD.AssetNumber\n    , JD.Asset\n    , JD.TagName\n    , JD.tagValue\n    , JD.tagValueAdded\n    , JD.MessageAdded\n\nINTO outfunc01\nFROM joinedData as JD\nINNER JOIN TagNameReference TNR\n            ON JD.asset = TNR.assetName \nWHERE JD.FunctionApp = 'ProcessPartCounter'\nAND JD.tagname = TNR.Tagname  OR JD.tagname = '_System._Error'\n\n/* SAVE DATA TO AZURE DATA LAKE */\nSELECT\n      BusinessUnit\n    , siteCode\n    , assetFamily\n    , AssetNumber\n    , Asset\n    , TagName\n    , tagValue\n    , tagValueAdded\n    , MessageAdded\n    , FunctionApp\n\nINTO outdatalake\nFROM joinedData\n\n/* SAVE DATA TO SQL IoTData TABLE */\n\nSELECT \n      BusinessUnit\n    , SiteCode\n    , assetfamily\n    , AssetNumber\n    , TagName\n    , tagValue\n    , tagValueAdded\n    , MessageAdded\n\nINTO outsqlKepwareIiotData\nFROM joinedData\n\nSELECT * INTO \n    outDataLakeGeminues\n    FROM \n        joinedData\n    WHERE\n        assetfamily = 'MIM' AND ( AssetNumber = '16' OR AssetNumber = '17' OR AssetNumber = '19')\n\n\n
+
+
+
+listKeys(resourceId('3a5c1be2-0158-47a6-9aeb-e5edd37e7aee', resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Raw_Data_Storage')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')
+
+listKeys(resourceId(subscription().subscriptionId, resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Raw_Data_Storage')), '2019-06-01').keys[0].value)

@@ -1,0 +1,270 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "businessUnitCode": {
+            "type":"string"
+        },
+        "plantCode": {
+            "type":"string"
+        },
+        "appServicePlanId": {
+            "type": "string"
+        },
+        "locationShort": {
+          "type": "string"
+        },
+        "SQLServerName": {
+            "type": "string"
+        },
+        "region": {
+            "type": "string"
+        },
+        "SQLServerUserName": {
+            "type": "string"
+        },
+        "SQLServerPW": {
+            "type": "string"
+        }
+      },
+    "variables": {  
+        "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'), '-vconnect-calcengine'))]",
+        "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'vconnect'))]",
+        "IoT_Hub_Name": "[concat('iot-dev-',parameters('locationShort'), '-', parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect')]",    
+        "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcenginedb')]",  
+        "streamingjobs_name": "[concat('asa-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'))]",
+        "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]",
+        "resourceTags": {
+            "Application": "VConnect",
+            "Built By": "i40 - Connected Factory",
+            "Business Unit": "[parameters('businessUnitCode')]",
+            "Changenumber":"NA",
+            "Owner":"i40 - Connected Factory",
+            "Region":"[parameters('region')]",
+            "Site Code": "[parameters('plantCode')]",
+            "AzRegion": "[resourceGroup().location]"
+        } 
+    },
+    "resources": [ 
+        {
+            "type": "Microsoft.StreamAnalytics/streamingjobs",
+            "apiVersion": "2019-06-01",
+            "name": "[variables('streamingjobs_name')]",
+            "location": "East US",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                "outputStartMode": "JobStartTime",
+                "eventsOutOfOrderPolicy": "Adjust",
+                "outputErrorPolicy": "Stop",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "eventsLateArrivalMaxDelayInSeconds": 5,
+                "dataLocale": "en-US",
+                "compatibilityLevel": "1.1",
+                "jobStorageAccount": 
+                {
+                    "accountName": "[variables('Function_App_StorageAccount')]",
+                    "accountKey": "[listKeys(resourceId(subscription().subscriptionId, resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Function_App_StorageAccount')), '2019-06-01').keys[0].value]"
+                },
+                "inputs":[
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
+                        "apiVersion": "2019-06-01",
+                        "name": "AssetFunctionReference",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "type": "Reference",
+                            "datasource": {
+                                "type": "Microsoft.Sql/Server/Database",
+                                "properties": {
+                                    "fullSnapshotQuery": "select [AssetName], [FunctionApp] from [dbo].[vwAssetFunction]",
+                                    "refreshType": "RefreshPeriodicallyWithFull",
+                                    "refreshRate": "00:10:00",
+                                    "server": "[parameters('SQLServerName')]",
+                                    "database": "[variables('DB_Name')]",
+                                    "user": "[parameters('SQLServerUserName')]",
+                                    "password": "[parameters('SQLServerPW')]"
+                                }
+                            },
+                            "compression": {
+                                "type": "None"
+                            }
+                        }
+                    },
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
+                        "apiVersion": "2019-06-01",
+                        "name": "IOT-Input",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "type": "Stream",
+                            "datasource": {
+                                "type": "Microsoft.Devices/IotHubs",
+                                "properties": {
+                                    "iotHubNamespace": "[variables('IoT_Hub_Name')]",
+                                    "sharedAccessPolicyName": "iothubowner",
+                                    "endpoint": "messages/events",
+                                    "consumerGroupName": "",
+                                    "sharedAccessPolicyKey": "[listKeys(resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('IoT_Hub_Name'), 'iothubowner'), '2016-02-03').primaryKey]"
+                                }
+                            },
+                            "compression": {
+                                "type": "None"
+                            },
+                            "serialization": {
+                                "type": "Json",
+                                "properties": {
+                                    "encoding": "UTF8"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/inputs",
+                        "apiVersion": "2019-06-01",
+                        "name": "TagNameReference",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "type": "Reference",
+                            "datasource": {
+                                "type": "Microsoft.Sql/Server/Database",
+                                "properties": {
+                                    "fullSnapshotQuery": "select [AssetName],[TagName] from [dbo].[vwAssetTag]",
+                                    "refreshType": "RefreshPeriodicallyWithFull",
+                                    "refreshRate": "06:00:00",
+                                    "server": "[parameters('SQLServerName')]",
+                                    "database": "[variables('DB_Name')]",
+                                    "user": "[parameters('SQLServerUserName')]",
+                                    "password": "[parameters('SQLServerPW')]"
+                                }
+                            },
+                            "compression": {
+                                "type": "None"
+                            }
+                        }
+                    }
+                ],
+                "transformation":{
+                    "name": "Transformation",
+                    "properties": {
+                        "streamingUnits": 1,
+                        "query": "/* FIXME \n"
+                    }
+                },
+                "outputs":[
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+                        "apiVersion": "2019-06-01",
+                        "name": "outdatalake",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "datasource": {
+                                "type": "Microsoft.Storage/Blob",
+                                "properties": {
+                                    "blobPathPrefix": "mfgdata/{date}",
+                                    "storageAccounts": [
+                                        {
+                                            "accountName": "[variables('Raw_Data_Storage')]",
+                                            "accountKey": "[listKeys(resourceId(subscription().subscriptionId, resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('Raw_Data_Storage')), '2019-06-01').keys[0].value]"
+                                        }
+                                    ],
+                                    "container": "streamunprocesseddata",
+                                    "pathPattern": "mfgdata/{date}",
+                                    "dateFormat": "yyyy/MM/dd",
+                                    "timeFormat": "HH",
+                                    "authenticationMode": "ConnectionString"                                }
+                            },
+                            "serialization": {
+                                "type": "Csv",
+                                "properties": {
+                                    "fieldDelimiter": ",",
+                                    "encoding": "UTF8"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+                        "apiVersion": "2019-06-01",
+                        "name": "outfunc01",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "datasource": {
+                                "type": "Microsoft.AzureFunction",
+                                "properties": {
+                                    "functionAppName": "[variables('Function_App_Name')]",
+                                    "functionName": "ProcessPartCounter",
+                                    "apiKey": "FIXME"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/outputs",
+                        "apiVersion": "2019-06-01",
+                        "name": "outsqlKepwareIiotData",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "datasource": {
+                                "type": "Microsoft.Sql/Server/Database",
+                                "properties": {
+                                    "maxWriterCount": 1,
+                                    "maxBatchCount": 10000,
+                                    "table": "IoTDataAll",
+                                    "server": "[parameters('SQLServerName')]",
+                                    "database": "[variables('DB_Name')]",
+                                    "user": "[parameters('SQLServerUserName')]",
+                                    "password": "[parameters('SQLServerPW')]"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "functions":[
+                    {
+                        "type": "Microsoft.StreamAnalytics/streamingjobs/functions",
+                        "apiVersion": "2016-03-01",
+                        "name": "asaIoTdataParser",
+                        "dependsOn": [
+                            "[resourceId('Microsoft.StreamAnalytics/streamingjobs', variables('streamingjobs_name'))]"
+                        ],
+                        "properties": {
+                            "type": "Scalar",
+                            "properties": {
+                                "inputs": [
+                                    {
+                                        "dataType": "any"
+                                    }
+                                ],
+                                "output": {
+                                    "dataType": "any"
+                                },
+                                "binding": {
+                                    "type": "Microsoft.StreamAnalytics/JavascriptUdf",
+                                    "properties": {
+                                        "script": "/*\n  FIXME \n}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+     ],
+    "outputs": {  }
+  }

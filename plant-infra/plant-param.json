@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "businessUnitCode": {
+            "value": "CHA"
+        },
+        "plantCode": {
+            "value":"RLE"
+        },
+        "appServicePlanId": {
+            "value": "/subscriptions/3a5c1be2-0158-47a6-9aeb-e5edd37e7aee/resourceGroups/rg-dev-eus2-vconnect-shared/providers/Microsoft.Web/serverfarms/asp-dev-eus2-vconnect"
+        },
+        "locationShort": {
+          "value": "eus2"
+        },
+        "SQLServerName": {
+            "value":"sql-dev-eus2-vconnect01"
+        },
+        "region":{
+            "value": "North America"
+        }
+  }
+}
