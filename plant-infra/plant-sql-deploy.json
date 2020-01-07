@@ -16,22 +16,11 @@
         },
         "appServicePlanId": {
             "type": "string"
-        },
-        "region":{
-            "type": "string"
         }
     },
     "variables": {
         "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-vconnectdb')]",
         "resourceTags": {
-            "Application": "VConnect",
-            "Built By": "i40 - Connected Factory",
-            "Business Unit": "[parameters('businessUnitCode')]",
-            "Changenumber":"NA",
-            "Owner":"i40 - Connected Factory",
-            "Region":"[parameters('region')]",
-            "Site Code": "[parameters('plantCode')]",
-            "AzRegion": "[resourceGroup().location]"
         } 
     },
     "resources": [
