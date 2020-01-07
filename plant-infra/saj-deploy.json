@@ -37,7 +37,7 @@
             "type": "Microsoft.StreamAnalytics/streamingjobs",
             "apiVersion": "2019-06-01",
             "name": "[variables('streamingjobs_name')]",
-            "location": "East US",
+            "location": "[resourceGroup().location]",
             "properties": {
                 "sku": {
                     "name": "Standard"
