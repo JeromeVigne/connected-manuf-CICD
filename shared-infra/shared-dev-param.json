@@ -9,10 +9,10 @@
             "value":"conman-dev-sql"
         },
         "sqlAdmin":{
-            "value": ""
+            "value": "xxx"
         },
         "sqlAdminPw":{
-            "value": ""
+            "value": "xxx"
         },
         "DataLakeName": {
             "value":"conmandevdlk"
