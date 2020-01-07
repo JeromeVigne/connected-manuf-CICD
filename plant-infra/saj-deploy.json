@@ -28,7 +28,7 @@
         "Function_App_Name": "[toLower(concat('fct-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode')))]",
         "Function_App_StorageAccount": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode')))]",
         "IoT_Hub_Name": "[concat('iot-dev-',parameters('locationShort'),'-', parameters('businessUnitCode'), '-', parameters('plantCode'))]",
-        "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-calcenginedb')]",  
+        "DB_Name": "[concat('conman-',parameters('businessUnitCode'), '-', parameters('plantCode'))]",
         "streamingjobs_name": "[concat('asa-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'),'-',parameters('plantCode'))]",
         "Raw_Data_Storage": "[toLower(concat('fstdev',parameters('locationShort'),parameters('businessUnitCode'),parameters('plantCode'), 'raw'))]"
     },

@@ -19,7 +19,7 @@
         }
     },
     "variables": {
-        "DB_Name": "[concat('sdb-dev-',parameters('locationShort'),'-',parameters('businessUnitCode'), '-', parameters('plantCode'), '-vconnect-vconnectdb')]",
+        "DB_Name": "[concat('conman-',parameters('businessUnitCode'), '-', parameters('plantCode'))]",
         "resourceTags": {
         } 
     },
